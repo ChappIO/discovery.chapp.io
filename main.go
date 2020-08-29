@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"net"
 	"net/http"
+	"os"
 )
 
 type Response struct {
-	OK bool `json:"ok"`
+	OK   bool        `json:"ok"`
 	Data interface{} `json:"data"`
 }
 
@@ -25,14 +26,19 @@ func getClientIp(request *http.Request) string {
 func main() {
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		response := Response{OK: true, Data: map[string]interface{}{
-			"headers": request.Header,
-			"remote": request.RemoteAddr,
+			"headers":  request.Header,
+			"remote":   request.RemoteAddr,
 			"publicIp": getClientIp(request),
 		}}
 		_ = json.NewEncoder(writer).Encode(&response)
 	})
 
-	if err := http.ListenAndServe(":3000", nil); err != http.ErrServerClosed {
+	listenPort := os.Getenv("PORT")
+	if listenPort == "" {
+		listenPort = "3000"
+	}
+
+	if err := http.ListenAndServe(":"+listenPort, nil); err != http.ErrServerClosed {
 		panic(err)
 	}
 }
