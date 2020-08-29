@@ -5,31 +5,43 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 )
 
-type Response struct {
-	OK   bool        `json:"ok"`
-	Data interface{} `json:"data"`
+type Agent struct {
+	ID        string `json:"id"`
+	PrivateIP string `json:"private_ip"`
 }
 
-func getClientIp(request *http.Request) string {
-	publicIp := ""
+type Response struct {
+	ID       string  `json:"id"`
+	PublicIP string  `json:"public_ip"`
+	Agents   []Agent `json:"agents"`
+}
 
-	// default to the remote address
-	if host, _, err := net.SplitHostPort(request.RemoteAddr); err == nil {
-		publicIp = host
+var ipHeaders = []string{"x-forwarded-for"}
+
+func getClientIp(request *http.Request) string {
+	for _, headerName := range ipHeaders {
+		if headerValue := request.Header.Get(headerName); headerValue != "" {
+			return headerValue
+		}
 	}
 
-	return publicIp
+	if host, _, err := net.SplitHostPort(request.RemoteAddr); err == nil {
+		return host
+	}
+
+	return ""
 }
 
 func main() {
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		response := Response{OK: true, Data: map[string]interface{}{
-			"headers":  request.Header,
-			"remote":   request.RemoteAddr,
-			"publicIp": getClientIp(request),
-		}}
+		response := Response{
+			ID:       strings.TrimPrefix(request.RequestURI, "/"),
+			PublicIP: getClientIp(request),
+			Agents:   []Agent{},
+		}
 		_ = json.NewEncoder(writer).Encode(&response)
 	})
 
