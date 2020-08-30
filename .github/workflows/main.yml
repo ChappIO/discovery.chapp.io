@@ -6,4 +6,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: go build -o build/discovery_server main.go
+      - run: docker build -t docker.pkg.github.com/chappio/discovery.chapp.io/discovery_server:latest
