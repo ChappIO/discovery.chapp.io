@@ -43,6 +43,11 @@ func getClientIp(request *http.Request) string {
 func registerAgent(serviceId string, agentId string, privateAddress string) {
 	lock.Lock()
 	defer lock.Unlock()
+
+	if len(agentId) > 36 {
+		agentId = agentId[:36]
+	}
+
 	// This is a new agent! Register it.
 	agents, ok := knownAgents[serviceId]
 	if !ok {
@@ -62,31 +67,34 @@ func registerAgent(serviceId string, agentId string, privateAddress string) {
 	})
 }
 
+func redirectToDocs(writer http.ResponseWriter) {
+	writer.Header().Set("Location", "https://github.com/ChappIO/discovery.chapp.io")
+	writer.WriteHeader(http.StatusTemporaryRedirect)
+}
+
 func main() {
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		serviceId := strings.TrimPrefix(request.URL.Path, "/")
+		// allow cross domain AJAX requests
+		writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-		if serviceId == "" {
+		requestPath := strings.TrimPrefix(request.URL.Path, "/")
+		if requestPath == "" {
 			// someone simply opened the root url. Redirect them to docs
-			writer.Header().Set("Location", "https://github.com/ChappIO/discovery.chapp.io")
-			writer.WriteHeader(http.StatusTemporaryRedirect)
+			redirectToDocs(writer)
 			return
 		}
 
 		response := Response{
-			ServiceID: serviceId,
+			ServiceID: requestPath,
 			PublicIP:  getClientIp(request),
 		}
 
-		serviceId = response.ServiceID + "/" + response.PublicIP
+		serviceId := response.ServiceID + "/" + response.PublicIP
 
 		if privateAddress := request.URL.Query().Get("private_address"); privateAddress != "" {
 			if _, _, err := net.SplitHostPort(privateAddress); err == nil {
 				// this address is valid
 				if agentId := request.URL.Query().Get("agent_id"); agentId != "" {
-					if len(agentId) > 36 {
-						agentId = agentId[:36]
-					}
 					registerAgent(serviceId, agentId, privateAddress)
 				}
 			}
@@ -97,7 +105,7 @@ func main() {
 			response.Agents = []*Agent{}
 		}
 		log.Printf("From %s found %d agents", serviceId, len(response.Agents))
-
+		writer.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(writer).Encode(&response)
 	})
 
