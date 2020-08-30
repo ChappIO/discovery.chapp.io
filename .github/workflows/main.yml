@@ -1,9 +1,18 @@
-name: CI
-on: [push]
-
+name: Publish Docker image
+on:
+  release:
+    types: [published]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: go build -o build/discovery_server main.go
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: chappio/discovery.chapp.io/discovery_server
+          tags: latest
+          tag_with_ref: true
