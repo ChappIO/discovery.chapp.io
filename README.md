@@ -7,10 +7,10 @@ can find each other.
 
 ![Discovery Chart](./discovery.png)
 
-This service know 2 API calls: [an agent reporting its local IP address](#call-report-ip) and [a client requesting an agent IP address](#call-request-ip).
+This service knows 2 API calls: [an agent reporting its local IP address](#call-report-ip) and [a client requesting an agent IP address](#call-request-ip).
 
 Agents are identified by three values:
- - The public IP address of the local network
+ - The public IP address of the local network (derrived from HTTP headers)
  - The service ID
  - The agent ID
 
