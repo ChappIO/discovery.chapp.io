@@ -6,4 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: docker build -t docker.pkg.github.com/chappio/discovery.chapp.io/discovery_server:latest
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: chappio/discovery.chapp.io/discovery_server
+          tag_with_ref: true
