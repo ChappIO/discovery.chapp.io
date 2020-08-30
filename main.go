@@ -64,12 +64,21 @@ func registerAgent(serviceId string, agentId string, privateAddress string) {
 
 func main() {
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		serviceId := strings.TrimPrefix(request.URL.Path, "/")
+
+		if serviceId == "" {
+			// someone simply opened the root url. Redirect them to docs
+			writer.Header().Set("Location", "https://github.com/ChappIO/discovery.chapp.io")
+			writer.WriteHeader(http.StatusTemporaryRedirect)
+			return
+		}
+
 		response := Response{
-			ServiceID: strings.TrimPrefix(request.URL.Path, "/"),
+			ServiceID: serviceId,
 			PublicIP:  getClientIp(request),
 		}
 
-		serviceId := response.ServiceID + "/" + response.PublicIP
+		serviceId = response.ServiceID + "/" + response.PublicIP
 
 		if privateAddress := request.URL.Query().Get("private_address"); privateAddress != "" {
 			if _, _, err := net.SplitHostPort(privateAddress); err == nil {
