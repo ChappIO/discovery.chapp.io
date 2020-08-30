@@ -19,7 +19,7 @@ Agents are identified by three values:
 To register an agent with the discovery server you make a simple HTTP request:
 
 ```bash
-curl "https://agent-discovery.herokuapp.com/io.chapp.discovery?agent_id=288cec4b-d04c-4c82-8212-7fd3fb015718&private_address=192.168.178.101:8888"
+curl "https://discovery.chapp.io/io.chapp.discovery?agent_id=288cec4b-d04c-4c82-8212-7fd3fb015718&private_address=192.168.178.101:8888"
 
 {
    "service_id":"io.chapp.discovery",
@@ -33,7 +33,7 @@ curl "https://agent-discovery.herokuapp.com/io.chapp.discovery?agent_id=288cec4b
 }
 ```
 
-`GET https://agent-discovery.herokuapp.com/[SERVICE_ID]?agent_id=[AGENT_ID]&private_address=[HOST:PORT]`
+`GET https://discovery.chapp.io/[SERVICE_ID]?agent_id=[AGENT_ID]&private_address=[HOST:PORT]`
 
 | Parameter         | Description | Example |
 | ----------------- | ----------- | ------- |
@@ -46,7 +46,7 @@ curl "https://agent-discovery.herokuapp.com/io.chapp.discovery?agent_id=288cec4b
 To get a list of agents on your local network the call is even simpler:
 
 ```bash
-curl "https://agent-discovery.herokuapp.com/io.chapp.discovery"
+curl "https://discovery.chapp.io/io.chapp.discovery"
 
 {
    "service_id":"io.chapp.discovery",
