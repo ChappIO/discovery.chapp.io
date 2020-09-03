@@ -1,18 +1,21 @@
 name: Publish Docker image
-on:
-  release:
-    types: [published]
+on: [ push ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Push to GitHub Packages
-        uses: docker/build-push-action@v1
+      - uses: actions/setup-go@v2
         with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
-          repository: chappio/discovery.chapp.io/discovery_server
-          tags: latest
-          tag_with_ref: true
+          go-version: '^1.15.0'
+      - run: ./scripts/test.sh
+#      - name: Push to GitHub Packages
+#        uses: docker/build-push-action@v1
+#        with:
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#          registry: docker.pkg.github.com
+#          repository: chappio/discovery.chapp.io/discovery_server
+#          tags: latest
+#          tag_with_ref: true
