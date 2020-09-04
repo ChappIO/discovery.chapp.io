@@ -1,6 +1,5 @@
 package storage
 
-
 type Agent struct {
 	AgentID        string `json:"agent_id"`
 	PrivateAddress string `json:"private_address"`

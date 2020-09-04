@@ -1,6 +1,8 @@
 package storage
 
-import "sync"
+import (
+	"sync"
+)
 
 type inMemoryStorage struct {
 	data map[string][]Agent
@@ -15,7 +17,18 @@ func (i *inMemoryStorage) Add(clientId string, serviceId string, agent Agent) []
 	if !ok {
 		agents = []Agent{agent}
 	} else {
-		agents = append(agents, agent)
+		index := -1
+		for i, elem := range agents {
+			if elem.AgentID == agent.AgentID {
+				index = i
+				break
+			}
+		}
+		if index == -1 {
+			agents = append(agents, agent)
+		} else {
+			agents[index] = agent
+		}
 	}
 	i.data[key] = agents
 	return agents
