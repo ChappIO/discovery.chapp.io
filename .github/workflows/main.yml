@@ -1,4 +1,4 @@
-name: Build
+name: Main
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Run Tests
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Push to GitHub Packages
+  deploy:
+    name: Publish docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push to GitHub packages
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}

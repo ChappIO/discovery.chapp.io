@@ -4,7 +4,7 @@ WORKDIR /app
 COPY cmd cmd
 COPY internal internal
 COPY go.mod go.mod
-COPY go.sub go.sub
+COPY go.sum go.sum
 RUN CGO_ENABLED=0 go build -o discovery_server ./cmd/discovery_server
 
 FROM scratch
