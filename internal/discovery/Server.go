@@ -9,10 +9,9 @@ import (
 	"strings"
 )
 
-
 type Response struct {
-	ServiceID string   `json:"service_id"`
-	PublicIP  string   `json:"public_ip"`
+	ServiceID string          `json:"service_id"`
+	PublicIP  string          `json:"public_ip"`
 	Agents    []storage.Agent `json:"agents"`
 }
 
@@ -22,7 +21,7 @@ type Server interface {
 
 type coreServer struct {
 	clientIp *ClientIPHeaders
-	store storage.Storage
+	store    storage.Storage
 }
 
 func (s *coreServer) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
@@ -37,7 +36,7 @@ func (s *coreServer) ServeHTTP(writer http.ResponseWriter, request *http.Request
 
 func (s *coreServer) serveDocs(writer http.ResponseWriter) {
 	writer.Header().Set("Location", "https://github.com/ChappIO/discovery.chapp.io")
-	writer.WriteHeader(http.StatusTemporaryRedirect)
+	writer.WriteHeader(http.StatusPermanentRedirect)
 }
 
 func (s *coreServer) serveServiceId(serviceId string, writer http.ResponseWriter, request *http.Request) {
@@ -45,13 +44,12 @@ func (s *coreServer) serveServiceId(serviceId string, writer http.ResponseWriter
 
 	var result []storage.Agent
 
-	// TODO: Check for new agents
 	params := request.URL.Query()
 	privateAddress := params.Get("private_address")
 	agentId := params.Get("agent_id")
 	if privateAddress != "" && agentId != "" {
 		// this is an 'add agent' request
-		if _,_, err:= net.SplitHostPort(privateAddress); err == nil {
+		if _, _, err := net.SplitHostPort(privateAddress); err == nil {
 			// the private address is valid
 			// limit agentId length to UUIDv4 length
 			if len(agentId) > 36 {
