@@ -1,2 +1,5 @@
 .idea/
 build/
+coverage.html
+coverage.out
+test-report.json
