@@ -59,13 +59,24 @@ func TestCoreServer_ServeHTTP(t *testing.T) {
 		Convey("When an existing agent is requested", func() {
 			// preload
 			server.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "https://discovery.chapp.io/test.exists?private_address=1.2.3.4:567&agent_id=jupgottem", nil))
+			server.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "https://discovery.chapp.io/test.exists?private_address=1.2.3.4:567&agent_id=jupgottem2", nil))
 
 			request := httptest.NewRequest("GET", "https://discovery.chapp.io/test.exists", nil)
 			response := httptest.NewRecorder()
 			server.ServeHTTP(response, request)
 
 			Convey("Its details are returned", func() {
-				So(response, BodyShouldEqual, `{"service_id":"test.exists","public_ip":"192.0.2.1","agents":[{"agent_id":"jupgottem","private_address":"1.2.3.4:567"}]}`)
+				So(response, BodyShouldEqual, `{"service_id":"test.exists","public_ip":"192.0.2.1","agents":[{"agent_id":"jupgottem","private_address":"1.2.3.4:567"},{"agent_id":"jupgottem2","private_address":"1.2.3.4:567"}]}`)
+			})
+		})
+
+		Convey("When an agent id is too long", func() {
+			request := httptest.NewRequest("GET", "https://discovery.chapp.io/long.agent?private_address=1.1.2.2:223&agent_id=1234567890123456789012345678901234567890", nil)
+			response := httptest.NewRecorder()
+			server.ServeHTTP(response, request)
+
+			Convey("Its id is shortened to 36 characters", func() {
+				So(response, BodyShouldEqual, `{"service_id":"long.agent","public_ip":"192.0.2.1","agents":[{"agent_id":"123456789012345678901234567890123456","private_address":"1.1.2.2:223"}]}`)
 			})
 		})
 	})

@@ -56,5 +56,4 @@ func TestClientIPHeaders_GetClientIP(t *testing.T) {
 			})
 		})
 	})
-
 }
