@@ -1,15 +1,26 @@
-FROM golang:1.15 as build
+FROM node:15 as build
 
+RUN mkdir /build
+WORKDIR /build
+
+ADD package.json .
+ADD yarn.lock .
+RUN yarn --frozen-lockfile
+ADD *.json .
+ADD ./src ./src
+RUN yarn build
+
+FROM node:15
+
+ENV NODE_ENV=production
+
+RUN mkdir /app
 WORKDIR /app
-COPY cmd cmd
-COPY internal internal
-COPY go.mod go.mod
-COPY go.sum go.sum
-RUN CGO_ENABLED=0 go build -o discovery_server ./cmd/discovery_server
 
-FROM scratch
+ADD package.json .
+ADD yarn.lock .
+RUN yarn --frozen-lockfile --production
+COPY --from=build /build/dist ./dist
 
-WORKDIR /app
-COPY --from=build /app/discovery_server .
-
-ENTRYPOINT ["/app/discovery_server"]
+EXPOSE 3000
+ENTRYPOINT ["node", "/app/dist/main.js"]
