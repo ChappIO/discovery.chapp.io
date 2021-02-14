@@ -13,7 +13,8 @@ import {AppController} from "./app.controller";
             host: 'localhost',
             synchronize: true,
             //dropSchema: true,
-            entities: [Agent]
+            entities: [Agent],
+            logging: 'all',
         }),
         TypeOrmModule.forFeature([Agent])
     ],
